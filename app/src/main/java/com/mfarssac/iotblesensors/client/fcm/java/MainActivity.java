@@ -16,42 +16,96 @@
 
 package com.mfarssac.iotblesensors.client.fcm.java;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.os.Build;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.quickstart.fcm.R;
+
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private BroadcastReceiver mTempReadBroadcastReceiver;
+    private boolean receiverRegistered;
+    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Create channel to show notifications.
-            String channelId  = getString(R.string.default_notification_channel_id);
-            String channelName = getString(R.string.default_notification_channel_name);
-            NotificationManager notificationManager =
-                    getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(new NotificationChannel(channelId,
-                    channelName, NotificationManager.IMPORTANCE_LOW));
-        }
+        mHandler = new Handler();
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                // do your stuff - don't create a new runnable here!
+
+                TextView textViewTimeNow = (TextView)findViewById(R.id.timeNow);
+                textViewTimeNow.setText(getTimeNow());
+                mHandler.postDelayed(this, 1000);
+            }
+        };
+
+// start it with:
+        mHandler.post(runnable);
+
+        mTempReadBroadcastReceiver = new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                String time, temp1, temp2, temp3;
+
+                if (intent!=null) {
+                    time = intent.getStringExtra("TIME");
+                    temp1 = intent.getStringExtra("TEMP1");
+                    temp2 = intent.getStringExtra("TEMP2");
+                    temp3 = intent.getStringExtra("TEMP3");
+
+                    TextView textViewTemp1 = (TextView)findViewById(R.id.temp1);
+                    textViewTemp1.setText(temp3 + "º C");
+                    TextView textViewTemp2 = (TextView)findViewById(R.id.temp2);
+                    textViewTemp2.setText(temp2+ "º C");
+                    TextView textViewTemp3 = (TextView)findViewById(R.id.temp3);
+                    textViewTemp3.setText(temp1+ "º C");
+
+                    TextView textViewTime1 = (TextView)findViewById(R.id.time1);
+                    textViewTime1.setText(getTime(time));
+                    TextView textViewTime2 = (TextView)findViewById(R.id.time2);
+                    textViewTime2.setText(getTime(time));
+                    TextView textViewTime3 = (TextView)findViewById(R.id.time3);
+                    textViewTime3.setText(getTime(time));
+                }
+
+
+            }
+        };
+        registerReceiver();
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            // Create channel to show notifications.
+//            String channelId  = getString(R.string.default_notification_channel_id);
+//            String channelName = getString(R.string.default_notification_channel_name);
+//            NotificationManager notificationManager =
+//                    getSystemService(NotificationManager.class);
+//            notificationManager.createNotificationChannel(new NotificationChannel(channelId,
+//                    channelName, NotificationManager.IMPORTANCE_LOW));
+//        }
 
         // If a notification message is tapped, any data accompanying the notification
         // message is available in the intent extras. In this sample the launcher
@@ -70,55 +124,60 @@ public class MainActivity extends AppCompatActivity {
         }
         // [END handle_data_extras]
 
-        Button subscribeButton = findViewById(R.id.subscribeButton);
-        subscribeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "Subscribing to weather topic");
-                // [START subscribe_topics]
-                FirebaseMessaging.getInstance().subscribeToTopic("weather")
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                String msg = getString(R.string.msg_subscribed);
-                                if (!task.isSuccessful()) {
-                                    msg = getString(R.string.msg_subscribe_failed);
-                                }
-                                Log.d(TAG, msg);
-                                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                // [END subscribe_topics]
-            }
-        });
+        FirebaseMessaging.getInstance().subscribeToTopic("iot-temp")
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        String msg = getString(R.string.connected_to_sensors);
+                        if (!task.isSuccessful()) {
+                            msg = getString(R.string.msg_subscribe_failed);
+                        }
+                        Log.d(TAG, msg);
+                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
 
-        Button logTokenButton = findViewById(R.id.logTokenButton);
-        logTokenButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Get token
-                FirebaseInstanceId.getInstance().getInstanceId()
-                        .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                                if (!task.isSuccessful()) {
-                                    Log.w(TAG, "getInstanceId failed", task.getException());
-                                    return;
-                                }
+    private void registerReceiver() {
+        if (!receiverRegistered) {
+            LocalBroadcastManager.getInstance(this).registerReceiver(mTempReadBroadcastReceiver,
+                    new IntentFilter(Preferences.TEMPERATURE_RECEIVED));
+            receiverRegistered = true;
+        }
+    }
 
-                                // Get new Instance ID token
-                                String token = task.getResult().getToken();
+    private void unregisterReceiver() {
+        if (receiverRegistered) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mTempReadBroadcastReceiver);
+            receiverRegistered = false;
+        }
+    }
 
-                                // Log and toast
-                                String msg = getString(R.string.msg_token_fmt, token);
-                                Log.d(TAG, msg);
-                                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-                            }
-                        });
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver();
+    }
 
-            }
-        });
+    private String getTimeNow() {
+        return getTime(String.valueOf(System.currentTimeMillis()));
+    }
+
+    private String getTime(String time) {
+
+        long measureTime = Long.valueOf(time);
+
+        int hh = (int) ((measureTime / 1000) /3600) %24;
+        int mm = (int) ((measureTime / 1000) /60) %60;
+        int ss = (int) ((measureTime / 1000)) %60;
+
+        return String.format(Locale.GERMANY, "%2d:%02d:%02d", hh, mm, ss);
     }
 
 }

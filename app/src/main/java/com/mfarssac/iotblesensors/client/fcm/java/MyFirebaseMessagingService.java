@@ -25,6 +25,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
@@ -33,6 +34,15 @@ import com.firebase.jobdispatcher.Job;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.firebase.quickstart.fcm.R;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -70,12 +80,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
 
-            if (/* Check if data needs to be processed by long running job */ true) {
+
+            if (/* Check if data needs to be processed by long running job */ false) {
                 // For long-running tasks (10 seconds or more) use Firebase Job Dispatcher.
                 scheduleJob();
             } else {
                 // Handle message within 10 seconds
-                handleNow();
+                handleNow(remoteMessage);
             }
 
         }
@@ -126,7 +137,68 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     /**
      * Handle time allotted to BroadcastReceivers.
      */
-    private void handleNow() {
+    private void handleNow(RemoteMessage remoteMessage) {
+
+        Map<String, String> string = remoteMessage.getData();
+
+        JSONObject body = null;
+        try {
+            body = new JSONObject(string.get("messageBody"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JSONObject datas = null;
+        try {
+            datas = new JSONObject(body.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JSONArray arr = null;
+        try {
+            arr = datas.getJSONArray("data");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        List<String> times = new ArrayList<>();
+        List<String> temps = new ArrayList<>();
+        String tempTime = String.valueOf(System.currentTimeMillis());
+
+        if (arr!=null) {
+
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject sensor = null;
+                try {
+                    sensor = arr.getJSONObject(i);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                String temp;
+                String time;
+                try {
+                    time = sensor.getString("timestamp_temperature");
+                    if (time != null) {
+                        tempTime = time;
+                    }
+                    temp = sensor.getString("temperature");
+                    times.add(time);
+                    temps.add(String.format(Locale.GERMANY, "%.1f", Float.valueOf(temp)));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            Intent registrationComplete = new Intent(Preferences.TEMPERATURE_RECEIVED);
+            registrationComplete.putExtra("TIME", tempTime);
+
+            for (int i = 0; i < temps.size(); i++) {
+                registrationComplete.putExtra("TEMP" + String.valueOf(i+1), temps.get(i));
+            }
+            LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
+        }
         Log.d(TAG, "Short lived task is done.");
     }
 

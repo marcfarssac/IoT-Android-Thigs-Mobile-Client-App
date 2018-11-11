@@ -1,4 +1,4 @@
-package com.mfarssac.iotblesensors.client.fcm.java;
+package com.mfarssac.iotblesensors.client;
 
 public class Preferences {
 

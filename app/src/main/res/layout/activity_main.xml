@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.mfarssac.iotblesensors.client.fcm.java.MainActivity">
+    tools:context="com.mfarssac.iotblesensors.client.MainActivity">
 
     <TextView
         android:id="@+id/timeNow"
@@ -21,11 +21,11 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:gravity="center_vertical"
-        android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
         android:layout_margin="10dp"
+        android:orientation="vertical"
         android:background="@drawable/customborder">
 
         <TextView
@@ -35,39 +35,10 @@
             android:layout_gravity="center_horizontal"
             android:textSize="50dp"
             android:gravity="center_horizontal"
-            android:text="Sensor 1" />
-
-        <TextView
-            android:id="@+id/time1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:textSize="30dp"
-            android:gravity="center_horizontal"
-            android:text="Time 1" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center_vertical"
-        android:layout_margin="10dp"
-        android:orientation="vertical"
-        android:background="@drawable/customborder">
-
-        <TextView
-            android:id="@+id/temp2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:textSize="50dp"
-            android:gravity="center_horizontal"
             android:text="Sensor 2" />
 
         <TextView
-            android:id="@+id/time2"
+            android:id="@+id/time1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -87,7 +58,7 @@
         android:background="@drawable/customborder">
 
         <TextView
-            android:id="@+id/temp3"
+            android:id="@+id/temp2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="50dp"
@@ -96,7 +67,7 @@
             android:text="Sensor 3" />
 
         <TextView
-            android:id="@+id/time3"
+            android:id="@+id/time2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -110,10 +81,10 @@
         android:id="@+id/about"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="center_horizontal|bottom"
         android:textSize="20dp"
         android:gravity="center_horizontal"
-        android:text="Version 0.2 - 05.11.2018 - Marc Farssac" />
+        android:text="Version 0.3 - 11.11.2018 - Marc Farssac" />
 
 
 </LinearLayout>

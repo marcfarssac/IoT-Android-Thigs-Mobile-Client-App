@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.mfarssac.iotblesensors.client.fcm.java.fcm;
+package com.mfarssac.iotblesensors.client.fcm;
 
 import android.util.Log;
 

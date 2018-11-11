@@ -1,4 +1,4 @@
-package com.mfarssac.iotblesensors.client.fcm.java.model;
+package com.mfarssac.iotblesensors.client.model;
 
 public class Datum
 {

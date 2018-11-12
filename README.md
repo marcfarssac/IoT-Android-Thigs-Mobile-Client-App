@@ -1,4 +1,4 @@
-# IoT Android Things client displaying remote sensor values in Realtime
+# IoT Android App client displaying remote Android Things sensor values in Realtime
 
 This is the client of an Android Things IoT Project that reads temperature data from linked Bluetooth Low Energy sensors.
 

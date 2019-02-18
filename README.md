@@ -20,7 +20,7 @@ This version connects to a Firebase realtime database and displays the values in
 
 ### Youtube: working prototype v. 0.5
 
-![iot-real-time](https://user-images.githubusercontent.com/18221570/48318536-bbce9080-e602-11e8-951c-29af91aa3dd7.PNG)(https://www.youtube.com/watch?v=9z9KXS_KiRE&feature=youtu.be)
+[![iot-real-time](https://user-images.githubusercontent.com/18221570/48318536-bbce9080-e602-11e8-951c-29af91aa3dd7.PNG)](https://www.youtube.com/watch?v=9z9KXS_KiRE&feature=youtu.be)
 
 YouTube video link: [https://www.youtube.com/watch?v=9z9KXS_KiRE&feature=youtu.be](https://www.youtube.com/watch?v=9z9KXS_KiRE&feature=youtu.be)
 
